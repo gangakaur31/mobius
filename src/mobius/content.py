@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import logging
+import yaml
 from pathlib import Path
 from typing import Any
 
-from osmium import parse_frontmatter, normalize_metadata
+from osmium import parse_frontmatter
 from markdown import Markdown
 
 from .models import Page
@@ -45,7 +46,18 @@ def load_pages(content_dir: Path, output_dir: Path) -> list[Page]:
     pages: list[Page] = []
     for path in discover_markdown_files(content_dir):
         raw_text = path.read_text(encoding="utf-8")
-        metadata, body = parse_frontmatter(raw_text)
+        osmium_metadata, body = parse_frontmatter(raw_text)
+
+        if raw_text.startswith("---"):
+            chunks = raw_text.split("---", 2)
+            if len(chunks) >= 3:
+                yaml_content = chunks[1]
+                try:
+                    loaded_data = yaml.safe_load(yaml_content)
+                    if type(loaded_data) is dict:
+                        metadata = loaded_data
+                except Exception:
+                    pass
         slug = _slug_for(path, content_dir)
         output_path = _output_path_for(slug, output_dir)
         title = _title_from_metadata(metadata, path)
