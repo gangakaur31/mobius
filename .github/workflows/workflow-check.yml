@@ -9,6 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+
+        with:
+          python-version: "3.11"
 
       - name: Install workflow tools
         run: python -m pip install pyyaml
@@ -62,13 +67,10 @@ jobs:
           exp_files = files(expected)
           assert [p.relative_to(output) for p in out_files] == [p.relative_to(expected) for p in exp_files]
           for generated in out_files:
-              ref = expected / generated.relative_to(output)
-              if not cmp(generated, ref, shallow=False):
-                  import os
-                  os.system(f"diff -u {ref} {generated}")
-                  raise AssertionError(f"Mismatch in {generated}!")
-          PY
-          
+                        ref = expected / generated.relative_to(output)
+                        assert cmp(generated, ref, shallow=False)
+                  PY
+
  
                           
           
