@@ -67,6 +67,8 @@ jobs:
                   import os
                   os.system(f"diff -u {ref} {generated}")
                   raise AssertionError(f"Mismatch in {generated}!")
+          PY
+          
  
                           
-              PY
+          
